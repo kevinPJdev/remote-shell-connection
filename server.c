@@ -12,9 +12,9 @@
 int main(int argc, char *argv[]) {
 
     struct sockaddr_in server_addr, client; //declare socket address structure
-    int sock1; //To handle sock commands
+    int sock1, ret, l; //To handle sock commands
 
-    if(sock1 = socket(AF_INET, SOCK_STREAM, 0) == -1) {
+    if((sock1 = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         printf("------Socket Creation Failed------");
         exit(1);
     }
@@ -26,7 +26,21 @@ int main(int argc, char *argv[]) {
     //setting internet address
     server_addr.sin_addr.s_addr = INADDR_ANY;
 
+    if((ret = bind(sock1, (struct sockaddr*)&server_addr, sizeof(server_addr))) < 0) {
+         printf("------Socket Binding Failed------");
+         exit(1);
+    }
 
+    if((l = listen(sock1, 10)) < 0) {
+        printf("------Listener Failed------");
+        exit(1);        
+    }       
+
+    while(1) {    
+    }
+
+
+    return 0;
 
 
 
