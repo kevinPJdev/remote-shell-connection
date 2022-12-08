@@ -20,8 +20,8 @@
 
 #define COMMAND(cmd) strcmp(command, cmd)==0
 
-#define PORT1 5095
-#define PORT2 5096
+#define PORT1 5098
+#define PORT2 5099
 
 int main(int argc,char *argv[])
 {
@@ -38,12 +38,14 @@ int main(int argc,char *argv[])
 	fscanf(fptr1, "%d", &count_serverA);
 	count_serverA++;
 	printf("There are currently %d connections to server A\n", count_serverA);
+	fclose(fptr1);
 
 	//Read the number of connections from server B
 	fptr2 = fopen("serverBComm.txt", "r");
 	fscanf(fptr2, "%d", &count_serverB);
 	count_serverB++;
 	printf("There are currently %d connections to server B\n", count_serverB);
+	fclose(fptr2);
 
 	//Load balancer - First 5 clients connect to server A, next 5 connect to server B and then alternate. 
 	if(count_serverA <= 5) {

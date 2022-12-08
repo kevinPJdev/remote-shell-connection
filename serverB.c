@@ -14,28 +14,41 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <signal.h>
+#include <sys/signal.h> 
+
 
 /*for getting file size using stat()*/
 #include<sys/stat.h>
 
 /*for O_RDONLY*/
 #include<fcntl.h>
+
 struct stat st = {0};
 
-#define PORT 5096 //if you face a binding error, change the port number
+#define PORT 5099 //if you face a binding error, change the port number
 
-struct sockaddr_in server, client;
-struct stat obj;
+struct sockaddr_in client;
 socklen_t sock2, clientLen;
 char buffer[100], command[5], filename[20]; //Character Arrays for handling user inputs
 int k, i, size, c;
 int filehandle, sockRet; //To handle files and sockRet for socket commands
 pid_t childpid; // Child process id
 int cnt = 0; //Client count
+FILE *fptr;
+
+static void initializeFilecount(void)
+{
+    fptr = fopen("client/serverBComm.txt", "w");
+    char buf[10];
+    sprintf(buf, "%d", 0);
+    fwrite(buf, strlen(buf), 1, fptr);
+    fclose(fptr);
+}
 
 /* Handle all incoming commands to the server */
 void ServiceClient(char *command, pid_t *child_pid) {
     while(1){
+        //receive command from the client
         recv(sock2, buffer, 100, 0);
         sscanf(buffer, "%s", command);
             
@@ -75,7 +88,7 @@ void ServiceClient(char *command, pid_t *child_pid) {
 
             // send status to client
             send(sock2, &c, sizeof(int), 0);
-            printf("[+]213 File status OK.\n");
+            printf("File status OK.\n");
             printf("[+]200 Command okay.\n");
         }
         else if(!strcmp(command, "RNFR"))
@@ -230,6 +243,7 @@ void ServiceClient(char *command, pid_t *child_pid) {
             i = 1;
             send(sock2, &i, sizeof(int), 0);
             close(sock2); 
+            cnt--;
             kill(child_pid, SIGKILL);
             break;
         }
@@ -242,7 +256,9 @@ void ServiceClient(char *command, pid_t *child_pid) {
 
 int main(int argc,char *argv[])
 {   
-    FILE *fptr;
+    //open files and set count to zero
+    initializeFilecount();
+    
 	if((sockRet = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         printf("\n------Socket Creation Failed------\n");
         exit(1);
@@ -287,12 +303,11 @@ int main(int argc,char *argv[])
 
         //Print the count of server A's clients into 
         //Open file for communication
-        fptr = fopen("client/serverBComm.txt", "w+");
+        fptr = fopen("client/serverBComm.txt", "w");
         char buf[10];
         sprintf(buf, "%d", cnt);
         fwrite(buf, strlen(buf), 1, fptr);
         fclose(fptr);
-
 		i = 1;
 
         //Forking and child execution
@@ -307,5 +322,7 @@ int main(int argc,char *argv[])
             ServiceClient(command, &child_pid);
         }
 	}
+
+
 	return 0;
 }

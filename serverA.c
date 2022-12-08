@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <signal.h>
+#include <sys/signal.h> 
+
 
 /*for getting file size using stat()*/
 #include<sys/stat.h>
@@ -23,7 +25,7 @@
 
 struct stat st = {0};
 
-#define PORT 5095 //if you face a binding error, change the port number
+#define PORT 5098 //if you face a binding error, change the port number
 
 struct sockaddr_in client;
 socklen_t sock2, clientLen;
@@ -32,6 +34,16 @@ int k, i, size, c;
 int filehandle, sockRet; //To handle files and sockRet for socket commands
 pid_t childpid; // Child process id
 int cnt = 0; //Client count
+FILE *fptr;
+
+static void initializeFilecount(void)
+{
+    fptr = fopen("client/serverAComm.txt", "w");
+    char buf[10];
+    sprintf(buf, "%d", 0);
+    fwrite(buf, strlen(buf), 1, fptr);
+    fclose(fptr);
+}
 
 /* Handle all incoming commands to the server */
 void ServiceClient(char *command, pid_t *child_pid) {
@@ -243,8 +255,9 @@ void ServiceClient(char *command, pid_t *child_pid) {
 }
 
 int main(int argc,char *argv[])
-{
-    FILE *fptr;
+{   
+    //open files and set count to zero
+    initializeFilecount();
     
 	if((sockRet = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         printf("\n------Socket Creation Failed------\n");
@@ -309,5 +322,7 @@ int main(int argc,char *argv[])
             ServiceClient(command, &child_pid);
         }
 	}
+
+
 	return 0;
 }
