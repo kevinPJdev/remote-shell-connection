@@ -20,18 +20,17 @@
 
 #define COMMAND(cmd) strcmp(command, cmd)==0
 
-#define PORT1 5090
-#define PORT2 5091
+#define PORT1 5095
+#define PORT2 5096
 
 int main(int argc,char *argv[])
 {
 	char choice[256], arg[256]; //Variable choice for handling user choice
 	FILE *fd, *fptr1, *fptr2; //File Descriptor
-	struct stat obj;  // Obj variable to keep the count 
 	char buf[100], command[5], filename[20], *f; //Character Arrays
 	int k, size, status;
 	int filehandle;
-	int count_serverA, count_serverB;
+	int count_serverA, count_serverB; // keep count of existing connections
 	int portCondA = 0; //defines whether client connects to Server A or Server B
 
 	//Read the number of connections from server A
@@ -46,11 +45,16 @@ int main(int argc,char *argv[])
 	count_serverB++;
 	printf("There are currently %d connections to server B\n", count_serverB);
 
+	//Load balancer - First 5 clients connect to server A, next 5 connect to server B and then alternate. 
 	if(count_serverA <= 5) {
-		portCondA = 1;
+		portCondA = 1; //connect to A
 	} else if(count_serverA > 5 && count_serverB <= 5) {
-		portCondA = 0;
-	} 
+		portCondA = 0; //connect to B
+	} else if((count_serverA+count_serverB)>10 && ((count_serverA+count_serverB) %2 == 0)) {
+		portCondA = 0; //connect to B if even and above 10
+	} else {
+		portCondA = 1; //connect to A
+	}
 
 
 	// TCP Protocol
@@ -75,7 +79,7 @@ int main(int argc,char *argv[])
         perror("Error in Connecting");
         exit(1);
     }
-    printf("Connected to server.\n");
+    printf("-------Connected to server %c---------\n", portCondA == 1 ? 'A': 'B');
 	int i = 1;
 
 	while(1)

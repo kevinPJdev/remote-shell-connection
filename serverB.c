@@ -22,7 +22,7 @@
 #include<fcntl.h>
 struct stat st = {0};
 
-#define PORT 5092 //if you face a binding error, change the port number
+#define PORT 5096 //if you face a binding error, change the port number
 
 struct sockaddr_in server, client;
 struct stat obj;
@@ -287,7 +287,7 @@ int main(int argc,char *argv[])
 
         //Print the count of server A's clients into 
         //Open file for communication
-        fptr = fopen("/Users/shobhanabhushan/Desktop/ASP_Project/client/serverBComm.txt", "w+");
+        fptr = fopen("client/serverBComm.txt", "w+");
         char buf[10];
         sprintf(buf, "%d", cnt);
         fwrite(buf, strlen(buf), 1, fptr);

@@ -23,7 +23,7 @@
 
 struct stat st = {0};
 
-#define PORT 5090 //if you face a binding error, change the port number
+#define PORT 5095 //if you face a binding error, change the port number
 
 struct sockaddr_in client;
 socklen_t sock2, clientLen;
@@ -76,7 +76,7 @@ void ServiceClient(char *command, pid_t *child_pid) {
 
             // send status to client
             send(sock2, &c, sizeof(int), 0);
-            printf("[+]213 File status OK.\n");
+            printf("File status OK.\n");
             printf("[+]200 Command okay.\n");
         }
         else if(!strcmp(command, "RNFR"))
@@ -290,7 +290,7 @@ int main(int argc,char *argv[])
 
         //Print the count of server A's clients into 
         //Open file for communication
-        fptr = fopen("/Users/shobhanabhushan/Desktop/ASP_Project/client/serverAComm.txt", "w");
+        fptr = fopen("client/serverAComm.txt", "w");
         char buf[10];
         sprintf(buf, "%d", cnt);
         fwrite(buf, strlen(buf), 1, fptr);
